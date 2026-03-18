@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note: In Prisma 7 the datasource URL is configured in prisma.config.ts
+// and passed to PrismaClient via datasourceUrl at runtime.
+datasource db {
+  provider = "postgresql"
+}
+
+model Transaction {
+  id              String   @id @default(cuid())
+  dateLabel       String
+  merchant        String
+  merchantIcon    String   @default("💳")
+  category        String
+  categoryVariant String   @default("blue")
+  amount          Float
+  type            String   // 'debit' | 'credit'
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model SavingsGoal {
+  id        String   @id @default(cuid())
+  title     String
+  current   Float    @default(0)
+  target    Float
+  deadline  String
+  color     String   @default("blue")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BudgetCategory {
+  id     String @id @default(cuid())
+  name   String @unique
+  spent  Float  @default(0)
+  total  Float
+  status String @default("ok") // 'ok' | 'warning' | 'danger'
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  time      String
+  read      Boolean  @default(false)
+  type      String   @default("info") // 'info' | 'warning' | 'success'
+  createdAt DateTime @default(now())
+}
+
+model LinkedAccount {
+  id       String @id @default(cuid())
+  name     String
+  bank     String
+  type     String // 'checking' | 'savings' | 'credit' | 'investment'
+  balance  Float
+  lastFour String
+  color    String @default("primary")
+}
