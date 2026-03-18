@@ -2,6 +2,7 @@
 
 import { CashFlowCard } from '@/components/dashboard/CashFlowCard';
 import { cashFlowData, cashFlowSummary } from '@/data/dashboard-data';
+import { formatCompact, formatCurrency } from '@/lib/currency';
 
 const monthlyBreakdown = [
   { month: 'August', income: 6200, spending: 4100, net: 2100 },
@@ -36,7 +37,7 @@ export function CashFlowView() {
             Total Income
           </p>
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-            ${(totalIncome / 1000).toFixed(1)}k
+            {formatCompact(totalIncome)}
           </p>
         </div>
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4">
@@ -44,13 +45,13 @@ export function CashFlowView() {
             Total Spending
           </p>
           <p className="text-2xl font-bold text-slate-700 dark:text-slate-200 mt-1">
-            ${(totalSpending / 1000).toFixed(1)}k
+            {formatCompact(totalSpending)}
           </p>
         </div>
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4">
           <p className="text-xs text-slate-500 dark:text-slate-400">Net Saved</p>
           <p className="text-2xl font-bold text-secondary-600 dark:text-secondary-400 mt-1">
-            ${(totalNet / 1000).toFixed(1)}k
+            {formatCompact(totalNet)}
           </p>
         </div>
       </div>
@@ -93,13 +94,13 @@ export function CashFlowView() {
                     {row.month}
                   </td>
                   <td className="px-5 py-3 text-sm text-right text-emerald-600 dark:text-emerald-400 tabular-nums">
-                    +${row.income.toLocaleString()}
+                    +{formatCurrency(row.income)}
                   </td>
                   <td className="px-5 py-3 text-sm text-right text-slate-600 dark:text-slate-300 tabular-nums">
-                    −${row.spending.toLocaleString()}
+                    −{formatCurrency(row.spending)}
                   </td>
                   <td className="px-5 py-3 text-sm text-right font-semibold text-secondary-600 dark:text-secondary-400 tabular-nums">
-                    +${row.net.toLocaleString()}
+                    +{formatCurrency(row.net)}
                   </td>
                 </tr>
               ))}
@@ -110,13 +111,13 @@ export function CashFlowView() {
                   Total
                 </td>
                 <td className="px-5 py-3 text-sm font-bold text-right text-emerald-600 dark:text-emerald-400 tabular-nums">
-                  +${totalIncome.toLocaleString()}
+                  +{formatCurrency(totalIncome)}
                 </td>
                 <td className="px-5 py-3 text-sm font-bold text-right text-slate-700 dark:text-slate-200 tabular-nums">
-                  −${totalSpending.toLocaleString()}
+                  −{formatCurrency(totalSpending)}
                 </td>
                 <td className="px-5 py-3 text-sm font-bold text-right text-secondary-600 dark:text-secondary-400 tabular-nums">
-                  +${totalNet.toLocaleString()}
+                  +{formatCurrency(totalNet)}
                 </td>
               </tr>
             </tfoot>

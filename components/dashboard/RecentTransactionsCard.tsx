@@ -1,5 +1,6 @@
 import { ArrowRightIcon } from 'lucide-react';
 import type { Transaction } from '@/data/dashboard-data';
+import { formatCurrency } from '@/lib/currency';
 
 const categoryStyles: Record<
   Transaction['categoryVariant'],
@@ -76,8 +77,7 @@ function TransactionRow({ transaction }: TransactionRowProps) {
               : 'text-slate-700 dark:text-slate-200'
           }`}
         >
-          {isCredit ? '+' : '-'}$
-          {amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          {isCredit ? '+' : '−'}{formatCurrency(amount)}
         </span>
       </td>
     </tr>

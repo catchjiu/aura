@@ -1,5 +1,6 @@
 import { PlusIcon, CalendarIcon, TargetIcon } from 'lucide-react';
 import type { SavingsGoal, GoalColor } from '@/data/dashboard-data';
+import { formatCurrency } from '@/lib/currency';
 
 const goalColorMap: Record<
   GoalColor,
@@ -127,19 +128,19 @@ function GoalCard({ goal }: GoalCardProps) {
         <div>
           <p className="text-xs text-slate-400 dark:text-slate-500">Saved</p>
           <p className={`text-sm font-semibold mt-0.5 ${colors.text}`}>
-            ${current.toLocaleString()}
+            {formatCurrency(current)}
           </p>
         </div>
         <div>
           <p className="text-xs text-slate-400 dark:text-slate-500">Remaining</p>
           <p className="text-sm font-semibold mt-0.5 text-slate-600 dark:text-slate-300">
-            ${remaining.toLocaleString()}
+            {formatCurrency(remaining)}
           </p>
         </div>
         <div>
           <p className="text-xs text-slate-400 dark:text-slate-500">Target</p>
           <p className="text-sm font-semibold mt-0.5 text-slate-700 dark:text-slate-200">
-            ${target.toLocaleString()}
+            {formatCurrency(target)}
           </p>
         </div>
       </div>
@@ -184,7 +185,7 @@ export function SavingsView({ goals }: SavingsViewProps) {
             </span>
           </div>
           <span className="text-sm font-bold text-primary-600 dark:text-primary-400">
-            ${totalSaved.toLocaleString()} / ${totalTarget.toLocaleString()}
+            {formatCurrency(totalSaved)} / {formatCurrency(totalTarget)}
           </span>
         </div>
         <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -194,7 +195,7 @@ export function SavingsView({ goals }: SavingsViewProps) {
           />
         </div>
         <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
-          ${(totalTarget - totalSaved).toLocaleString()} remaining across all goals
+          {formatCurrency(totalTarget - totalSaved)} remaining across all goals
         </p>
       </div>
 

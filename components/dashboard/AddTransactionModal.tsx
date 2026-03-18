@@ -214,7 +214,7 @@ export function AddTransactionModal({
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 dark:text-slate-500 pointer-events-none">
-                  $
+                  NT$
                 </span>
                 <input
                   type="number"

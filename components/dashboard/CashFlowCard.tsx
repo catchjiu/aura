@@ -14,10 +14,7 @@ import {
 import { TrendingUpIcon, TrendingDownIcon, ArrowRightIcon } from 'lucide-react';
 import { useThemeSwitch } from '@/components/shared/useThemeSwitch';
 import type { CashFlowDataPoint, CashFlowSummary } from '@/data/dashboard-data';
-
-function formatK(value: number): string {
-  return `$${(value / 1000).toFixed(1)}k`;
-}
+import { formatCompact, formatCurrency } from '@/lib/currency';
 
 interface MetricPillProps {
   label: string;
@@ -31,7 +28,7 @@ function MetricPill({ label, value, trend }: MetricPillProps) {
     <div className="flex flex-col gap-0.5">
       <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
       <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
-        {formatK(value)}
+        {formatCompact(value)}
       </p>
       <span
         className={`inline-flex items-center gap-0.5 text-xs font-medium ${
@@ -124,7 +121,7 @@ export function CashFlowCard({ data, summary, onViewDetails }: CashFlowCardProps
               tick={{ fill: axisColor, fontSize: 11 }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v) => `$${v / 1000}k`}
+              tickFormatter={(v) => `NT$${v / 1000}k`}
             />
             <Tooltip
               contentStyle={{
@@ -136,7 +133,7 @@ export function CashFlowCard({ data, summary, onViewDetails }: CashFlowCardProps
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               }}
               formatter={(value: number, name: string) => [
-                `$${value.toLocaleString()}`,
+                formatCurrency(value),
                 name === 'income' ? 'Income' : 'Spending',
               ]}
             />

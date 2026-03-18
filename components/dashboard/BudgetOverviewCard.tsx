@@ -1,16 +1,15 @@
 import type { BudgetCategory, BudgetStatus } from '@/data/dashboard-data';
+import { formatCurrency } from '@/lib/currency';
 
 function statusLabel(status: BudgetStatus, spent: number, total: number): string {
   if (status === 'danger') {
-    const over = spent - total;
-    return `$${over.toFixed(0)} over`;
+    return `${formatCurrency(spent - total)} over`;
   }
   if (status === 'warning') {
     const pct = Math.round((spent / total) * 100);
     return `${pct}% used`;
   }
-  const remaining = total - spent;
-  return `$${remaining.toFixed(0)} left`;
+  return `${formatCurrency(total - spent)} left`;
 }
 
 function statusBarClass(status: BudgetStatus): string {
@@ -51,7 +50,7 @@ function BudgetRow({ category }: BudgetRowProps) {
       </div>
       <div className="flex items-center justify-between">
         <span className="text-xs text-slate-400 dark:text-slate-500">
-          ${spent.toLocaleString()} of ${total.toLocaleString()}
+          {formatCurrency(spent)} of {formatCurrency(total)}
         </span>
       </div>
     </div>
@@ -75,7 +74,7 @@ export function BudgetOverviewCard({ categories }: BudgetOverviewCardProps) {
         <div className="text-right">
           <p className="text-xs text-slate-500 dark:text-slate-400">Monthly</p>
           <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            ${totalSpent.toLocaleString()} / ${totalBudget.toLocaleString()}
+            {formatCurrency(totalSpent)} / {formatCurrency(totalBudget)}
           </p>
         </div>
       </div>

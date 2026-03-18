@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { SearchIcon, FilterIcon, PlusIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import type { Transaction, TransactionType } from '@/data/dashboard-data';
+import { formatCurrency, formatSigned } from '@/lib/currency';
 
 const categoryStyles: Record<
   Transaction['categoryVariant'],
@@ -110,13 +111,13 @@ export function TransactionsView({
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4">
           <p className="text-xs text-slate-500 dark:text-slate-400">Total Income</p>
           <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-            +${totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            +{formatCurrency(totalCredit)}
           </p>
         </div>
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4">
           <p className="text-xs text-slate-500 dark:text-slate-400">Total Expenses</p>
           <p className="text-xl font-bold text-slate-700 dark:text-slate-200 mt-1">
-            −${totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            −{formatCurrency(totalDebit)}
           </p>
         </div>
         <div className="hidden sm:block rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4">
@@ -128,10 +129,7 @@ export function TransactionsView({
                 : 'text-red-600 dark:text-red-400'
             }`}
           >
-            {totalCredit - totalDebit >= 0 ? '+' : ''}$
-            {(totalCredit - totalDebit).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-            })}
+            {formatSigned(totalCredit - totalDebit)}
           </p>
         </div>
       </div>
@@ -259,10 +257,7 @@ export function TransactionsView({
                               : 'text-slate-700 dark:text-slate-200'
                           }`}
                         >
-                          {isCredit ? '+' : '−'}$
-                          {txn.amount.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                          })}
+                          {isCredit ? '+' : '−'}{formatCurrency(txn.amount)}
                         </span>
                       </td>
                     </tr>

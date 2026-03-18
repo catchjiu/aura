@@ -1,5 +1,6 @@
 import { PlusIcon, RefreshCwIcon, BuildingIcon } from 'lucide-react';
 import type { LinkedAccount } from '@/data/dashboard-data';
+import { formatCurrency } from '@/lib/currency';
 
 const colorMap: Record<
   LinkedAccount['color'],
@@ -84,10 +85,7 @@ function AccountCard({ account }: AccountCardProps) {
                   : 'text-slate-900 dark:text-slate-100'
               }`}
             >
-              {isCredit ? '−' : ''}$
-              {Math.abs(balance).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-              })}
+              {isCredit ? '−' : ''}{formatCurrency(Math.abs(balance))}
             </p>
           </div>
           <p className="text-xs text-slate-400 dark:text-slate-500">
@@ -142,7 +140,7 @@ export function AccountsView({ accounts }: AccountsViewProps) {
             Total Assets
           </p>
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-            ${totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {formatCurrency(totalAssets)}
           </p>
         </div>
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4">
@@ -150,9 +148,7 @@ export function AccountsView({ accounts }: AccountsViewProps) {
             Total Liabilities
           </p>
           <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">
-            −${totalLiabilities.toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-            })}
+            −{formatCurrency(totalLiabilities)}
           </p>
         </div>
       </div>

@@ -5,6 +5,7 @@ import {
   CalendarIcon,
   FileTextIcon,
 } from 'lucide-react';
+import { formatCurrency, formatCompact } from '@/lib/currency';
 
 const monthlySummary = [
   { month: 'January', income: 7600, expenses: 5400, savings: 2200, trend: 4.1 },
@@ -64,24 +65,24 @@ export function ReportsView() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="YTD Income"
-          value="$43.3k"
+          value={formatCompact(43300)}
           sub="+11% vs last year"
           positive
         />
         <StatCard
           label="YTD Expenses"
-          value="$31.2k"
+          value={formatCompact(31200)}
           sub="+6% vs last year"
           positive={false}
         />
         <StatCard
           label="YTD Savings"
-          value="$12.1k"
+          value={formatCompact(12100)}
           sub="27.9% savings rate"
         />
         <StatCard
           label="Net Worth Growth"
-          value="+$4.4k"
+          value={`+${formatCompact(4400)}`}
           sub="+3.2% since Jan 1"
           positive
         />
@@ -126,13 +127,13 @@ export function ReportsView() {
                     {row.month}
                   </td>
                   <td className="px-5 py-3 text-sm text-right text-emerald-600 dark:text-emerald-400 tabular-nums">
-                    ${row.income.toLocaleString()}
+                    {formatCurrency(row.income)}
                   </td>
                   <td className="px-5 py-3 text-sm text-right text-slate-600 dark:text-slate-300 tabular-nums">
-                    ${row.expenses.toLocaleString()}
+                    {formatCurrency(row.expenses)}
                   </td>
                   <td className="px-5 py-3 text-sm text-right font-medium text-secondary-600 dark:text-secondary-400 tabular-nums">
-                    ${row.savings.toLocaleString()}
+                    {formatCurrency(row.savings)}
                   </td>
                   <td className="px-5 py-3 text-right">
                     <span

@@ -1,5 +1,6 @@
 import { CalendarIcon } from 'lucide-react';
 import type { SavingsGoal, GoalColor } from '@/data/dashboard-data';
+import { formatCurrency } from '@/lib/currency';
 
 const goalColorMap: Record<
   GoalColor,
@@ -101,7 +102,7 @@ function GoalItem({ goal }: GoalItemProps) {
               {title}
             </p>
             <p className={`text-xs font-semibold shrink-0 ${colors.text}`}>
-              ${current.toLocaleString()}
+              {formatCurrency(current)}
             </p>
           </div>
           <div className="flex items-center justify-between gap-2 mt-0.5">
@@ -110,7 +111,7 @@ function GoalItem({ goal }: GoalItemProps) {
               {deadline}
             </div>
             <p className="text-xs text-slate-400 dark:text-slate-500">
-              of ${target.toLocaleString()}
+              of {formatCurrency(target)}
             </p>
           </div>
         </div>
