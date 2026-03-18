@@ -18,8 +18,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Make DATABASE_URL available to Next.js during "Collecting page data" step.
-# Coolify injects it as ARG; we promote it to ENV so process.env can read it.
+# Make DATABASE_URL available during Next.js "Collecting page data" step.
 ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
@@ -41,20 +40,18 @@ RUN adduser  --system --uid 1001 nextjs
 # Static assets
 COPY --from=builder /app/public ./public
 
-# Standalone build (server.js + minimal node_modules, includes pg deps)
+# Standalone build (server.js + bundled node_modules)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static     ./.next/static
 
-# Prisma: config (.mjs — plain ESM, no tsx needed), schema, migrations, seed, client
-COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.mjs     ./prisma.config.mjs
-COPY --from=builder --chown=nextjs:nodejs /app/prisma/schema.prisma  ./prisma/schema.prisma
-COPY --from=builder --chown=nextjs:nodejs /app/prisma/migrations      ./prisma/migrations
-COPY --from=builder --chown=nextjs:nodejs /app/prisma/seed.mjs        ./prisma/seed.mjs
+# DB setup script (plain ESM — no Prisma CLI / tsx / esbuild needed)
+COPY --from=builder --chown=nextjs:nodejs /app/prisma/setup.mjs ./prisma/setup.mjs
+
+# Prisma generated client
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma  ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma  ./node_modules/@prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma   ./node_modules/prisma
 
-# pg driver (Prisma 7 adapter-pg — standalone bundle may not auto-include these)
+# pg driver (used by setup.mjs and the Prisma adapter at runtime)
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg                   ./node_modules/pg
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-cloudflare        ./node_modules/pg-cloudflare
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-connection-string ./node_modules/pg-connection-string
@@ -71,6 +68,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Run migrations, seed if empty, then start the server.
-# Both config and seed are plain .mjs files — no tsx or esbuild needed.
-CMD ["sh", "-c", "node ./node_modules/prisma/build/index.js migrate deploy && echo 'Migrations done' || echo 'Migrations failed' ; node ./prisma/seed.mjs || echo 'Seed failed' ; node server.js"]
+# Run DB setup (creates tables + seeds if empty) then start the server.
+# Uses pg directly — zero dependency on Prisma CLI, tsx, or esbuild.
+CMD ["sh", "-c", "node ./prisma/setup.mjs ; node server.js"]
