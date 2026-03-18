@@ -72,5 +72,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Run migrations (idempotent) then start the server
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+# Run migrations (idempotent) then start the server.
+# Use || true so a migration failure doesn't prevent the server from starting.
+CMD ["sh", "-c", "npx prisma migrate deploy || echo 'Migration failed, continuing...' && node server.js"]
