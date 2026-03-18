@@ -73,5 +73,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Run migrations (idempotent) then start the server.
-# Use || true so a migration failure doesn't prevent the server from starting.
-CMD ["sh", "-c", "npx prisma migrate deploy || echo 'Migration failed, continuing...' && node server.js"]
+# Call prisma directly via node to avoid PATH issues in the slim runner image.
+CMD ["sh", "-c", "node ./node_modules/prisma/build/index.js migrate deploy || echo 'Migrations failed, continuing...' && node server.js"]
