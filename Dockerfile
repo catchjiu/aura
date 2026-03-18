@@ -45,16 +45,14 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma: config, schema, migrations, seed, and generated client
-COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts      ./prisma.config.ts
+# Prisma: config (.mjs — plain ESM, no tsx needed), schema, migrations, seed, client
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.mjs     ./prisma.config.mjs
 COPY --from=builder --chown=nextjs:nodejs /app/prisma/schema.prisma  ./prisma/schema.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma/migrations      ./prisma/migrations
-COPY --from=builder --chown=nextjs:nodejs /app/prisma/seed.ts         ./prisma/seed.ts
+COPY --from=builder --chown=nextjs:nodejs /app/prisma/seed.mjs        ./prisma/seed.mjs
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma  ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma  ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma   ./node_modules/prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/dotenv   ./node_modules/dotenv
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/tsx      ./node_modules/tsx
 
 # pg driver (Prisma 7 adapter-pg — standalone bundle may not auto-include these)
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg                   ./node_modules/pg
@@ -74,6 +72,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Run migrations, seed if empty, then start the server.
-# Prisma is called via node directly (no .bin symlinks in the slim runner).
-# Seed is skipped automatically if data already exists.
-CMD ["sh", "-c", "node ./node_modules/prisma/build/index.js migrate deploy || echo 'Migrations failed, continuing...' && node ./node_modules/tsx/dist/cli.mjs ./prisma/seed.ts || echo 'Seed failed, continuing...' && node server.js"]
+# Both config and seed are plain .mjs files — no tsx or esbuild needed.
+CMD ["sh", "-c", "node ./node_modules/prisma/build/index.js migrate deploy && echo 'Migrations done' || echo 'Migrations failed' ; node ./prisma/seed.mjs || echo 'Seed failed' ; node server.js"]
