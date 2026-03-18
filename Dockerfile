@@ -45,10 +45,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma: config, schema, migrations, and generated client
+# Prisma: config, schema, migrations, seed, and generated client
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts      ./prisma.config.ts
 COPY --from=builder --chown=nextjs:nodejs /app/prisma/schema.prisma  ./prisma/schema.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma/migrations      ./prisma/migrations
+COPY --from=builder --chown=nextjs:nodejs /app/prisma/seed.ts         ./prisma/seed.ts
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma  ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma  ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma   ./node_modules/prisma
@@ -72,6 +73,7 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Run migrations (idempotent) then start the server.
-# Call prisma directly via node to avoid PATH issues in the slim runner image.
-CMD ["sh", "-c", "node ./node_modules/prisma/build/index.js migrate deploy || echo 'Migrations failed, continuing...' && node server.js"]
+# Run migrations, seed if empty, then start the server.
+# Prisma is called via node directly (no .bin symlinks in the slim runner).
+# Seed is skipped automatically if data already exists.
+CMD ["sh", "-c", "node ./node_modules/prisma/build/index.js migrate deploy || echo 'Migrations failed, continuing...' && node ./node_modules/tsx/dist/cli.mjs ./prisma/seed.ts || echo 'Seed failed, continuing...' && node server.js"]

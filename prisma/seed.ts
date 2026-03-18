@@ -1,18 +1,22 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error('DATABASE_URL is not set');
+
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  // Only seed if the database is empty (avoids overwriting real data on restart)
+  const existingCount = await prisma.transaction.count();
+  if (existingCount > 0) {
+    console.log(`Database already has ${existingCount} transactions — skipping seed.`);
+    return;
+  }
+
   console.log('🌱 Seeding database...');
 
-  // Clear all tables first (order respects no FK deps here)
-  await prisma.transaction.deleteMany();
-  await prisma.savingsGoal.deleteMany();
-  await prisma.budgetCategory.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.linkedAccount.deleteMany();
-
-  // ─── Transactions ─────────────────────────────────────────────────────────
   await prisma.transaction.createMany({
     data: [
       { dateLabel: 'Jan 18', merchant: 'Whole Foods Market',  merchantIcon: '🛒', category: 'Groceries',      categoryVariant: 'emerald', amount: 84.32,   type: 'debit'  },
@@ -34,17 +38,15 @@ async function main() {
   });
   console.log('  ✔ Transactions');
 
-  // ─── Savings Goals ────────────────────────────────────────────────────────
   await prisma.savingsGoal.createMany({
     data: [
-      { title: 'Emergency Fund',   current: 8500, target: 12000, deadline: 'Jun 2025', color: 'emerald' },
+      { title: 'Emergency Fund',    current: 8500, target: 12000, deadline: 'Jun 2025', color: 'emerald' },
       { title: 'Vacation to Japan', current: 3200, target: 5000,  deadline: 'Aug 2025', color: 'blue'    },
-      { title: 'New MacBook Pro',  current: 1800, target: 2500,  deadline: 'Mar 2025', color: 'violet'  },
+      { title: 'New MacBook Pro',   current: 1800, target: 2500,  deadline: 'Mar 2025', color: 'violet'  },
     ],
   });
   console.log('  ✔ Savings Goals');
 
-  // ─── Budget Categories ────────────────────────────────────────────────────
   await prisma.budgetCategory.createMany({
     data: [
       { name: 'Housing',        spent: 1800, total: 2000, status: 'ok'      },
@@ -57,24 +59,22 @@ async function main() {
   });
   console.log('  ✔ Budget Categories');
 
-  // ─── Notifications ────────────────────────────────────────────────────────
   await prisma.notification.createMany({
     data: [
-      { title: 'Budget Alert',    message: 'Shopping budget exceeded by $240 this month.',          time: '2h ago',  read: false, type: 'warning' },
-      { title: 'Goal Milestone',  message: "Emergency fund is 70% complete — you're on track!",     time: '5h ago',  read: false, type: 'success' },
-      { title: 'Large Transaction', message: 'Amazon purchase of $127.80 was recorded.',            time: '1d ago',  read: true,  type: 'info'    },
-      { title: 'Bill Due Soon',   message: 'Electricity bill of ~$95 is due in 3 days.',            time: '1d ago',  read: true,  type: 'warning' },
+      { title: 'Budget Alert',      message: 'Shopping budget exceeded by $240 this month.',        time: '2h ago', read: false, type: 'warning' },
+      { title: 'Goal Milestone',    message: "Emergency fund is 70% complete — you're on track!",   time: '5h ago', read: false, type: 'success' },
+      { title: 'Large Transaction', message: 'Amazon purchase of $127.80 was recorded.',            time: '1d ago', read: true,  type: 'info'    },
+      { title: 'Bill Due Soon',     message: 'Electricity bill of ~$95 is due in 3 days.',          time: '1d ago', read: true,  type: 'warning' },
     ],
   });
   console.log('  ✔ Notifications');
 
-  // ─── Linked Accounts ──────────────────────────────────────────────────────
   await prisma.linkedAccount.createMany({
     data: [
-      { name: 'Chase Checking',    bank: 'Chase Bank',         type: 'checking',   balance:  12480.50, lastFour: '4291', color: 'secondary' },
-      { name: 'Chase Savings',     bank: 'Chase Bank',         type: 'savings',    balance:  15969.50, lastFour: '8834', color: 'primary'   },
-      { name: 'Fidelity Investments', bank: 'Fidelity',        type: 'investment', balance:  98340.50, lastFour: '2201', color: 'emerald'   },
-      { name: 'Amex Platinum',     bank: 'American Express',   type: 'credit',     balance:  -4280.00, lastFour: '7745', color: 'violet'    },
+      { name: 'Chase Checking',       bank: 'Chase Bank',       type: 'checking',   balance:  12480.50, lastFour: '4291', color: 'secondary' },
+      { name: 'Chase Savings',        bank: 'Chase Bank',       type: 'savings',    balance:  15969.50, lastFour: '8834', color: 'primary'   },
+      { name: 'Fidelity Investments', bank: 'Fidelity',         type: 'investment', balance:  98340.50, lastFour: '2201', color: 'emerald'   },
+      { name: 'Amex Platinum',        bank: 'American Express', type: 'credit',     balance:  -4280.00, lastFour: '7745', color: 'violet'    },
     ],
   });
   console.log('  ✔ Linked Accounts');
