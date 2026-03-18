@@ -18,6 +18,11 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Make DATABASE_URL available to Next.js during "Collecting page data" step.
+# Coolify injects it as ARG; we promote it to ENV so process.env can read it.
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
 # Generate Prisma client from schema, then build Next.js
 RUN npx prisma generate
 RUN npm run build
@@ -36,7 +41,7 @@ RUN adduser  --system --uid 1001 nextjs
 # Static assets
 COPY --from=builder /app/public ./public
 
-# Standalone build (server.js + minimal node_modules)
+# Standalone build (server.js + minimal node_modules, includes pg deps)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
@@ -49,6 +54,17 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma  ./node_modu
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma   ./node_modules/prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/dotenv   ./node_modules/dotenv
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/tsx      ./node_modules/tsx
+
+# pg driver (Prisma 7 adapter-pg — standalone bundle may not auto-include these)
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg                   ./node_modules/pg
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-cloudflare        ./node_modules/pg-cloudflare
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-connection-string ./node_modules/pg-connection-string
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-int8              ./node_modules/pg-int8
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-numeric           ./node_modules/pg-numeric
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-pool              ./node_modules/pg-pool
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-protocol          ./node_modules/pg-protocol
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg-types             ./node_modules/pg-types
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pgpass               ./node_modules/pgpass
 
 USER nextjs
 
