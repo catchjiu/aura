@@ -1,0 +1,28 @@
+# Version control
+.git
+.gitignore
+
+# Dependencies (re-installed inside the image)
+node_modules
+
+# Next.js build output
+.next
+out
+
+# Local env files (never bake secrets into the image)
+.env
+.env.*
+!.env.example
+
+# Dev/editor artifacts
+.DS_Store
+*.log
+.vscode
+.cursor
+
+# Test & coverage
+coverage
+
+# Package manager locks not needed at runtime
+yarn.lock
+pnpm-lock.yaml
